@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGPA Result | Smart Grade Tracker</title>
+    <meta name="description" content="View your calculated CGPA and semester-wise GPA breakdown.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== THEMES ===== */
+        :root {
+            --bg-from:#0f0c29;--bg-via:#302b63;--bg-to:#24243e;
+            --card-bg:rgba(255,255,255,0.07);--card-border:rgba(255,255,255,0.15);
+            --card-shadow:0 25px 60px rgba(0,0,0,0.5);
+            --text-primary:#fff;--text-secondary:rgba(255,255,255,0.65);
+            --accent-from:#a855f7;--accent-to:#6366f1;
+            --btn-from:#a855f7;--btn-to:#6366f1;--btn-shadow:rgba(168,85,247,0.45);
+            --stat-bg:rgba(255,255,255,0.06);--stat-border:rgba(255,255,255,0.12);
+            --row-bg:rgba(255,255,255,0.04);--row-border:rgba(255,255,255,0.08);
+            --badge-bg:rgba(168,85,247,0.2);--badge-border:rgba(168,85,247,0.5);
+        }
+        [data-theme="ocean"]{
+            --bg-from:#0a2342;--bg-via:#126872;--bg-to:#0d4f5c;
+            --card-bg:rgba(255,255,255,0.08);--card-border:rgba(0,220,255,0.2);
+            --text-primary:#e0f7fa;--text-secondary:rgba(224,247,250,0.65);
+            --accent-from:#00e5ff;--accent-to:#0288d1;
+            --btn-from:#00bcd4;--btn-to:#0288d1;--btn-shadow:rgba(0,188,212,0.45);
+            --stat-bg:rgba(0,229,255,0.06);--stat-border:rgba(0,229,255,0.15);
+            --row-bg:rgba(0,229,255,0.04);--row-border:rgba(0,229,255,0.1);
+            --badge-bg:rgba(0,229,255,0.15);--badge-border:rgba(0,229,255,0.4);
+        }
+        [data-theme="sunset"]{
+            --bg-from:#1a0533;--bg-via:#6b1a2a;--bg-to:#c0392b;
+            --card-bg:rgba(255,255,255,0.08);--card-border:rgba(255,150,80,0.25);
+            --text-primary:#fff3e0;--text-secondary:rgba(255,243,224,0.65);
+            --accent-from:#ff9800;--accent-to:#f44336;
+            --btn-from:#ff9800;--btn-to:#f44336;--btn-shadow:rgba(255,152,0,0.45);
+            --stat-bg:rgba(255,152,0,0.07);--stat-border:rgba(255,152,0,0.2);
+            --row-bg:rgba(255,152,0,0.04);--row-border:rgba(255,152,0,0.12);
+            --badge-bg:rgba(255,152,0,0.15);--badge-border:rgba(255,152,0,0.45);
+        }
+        [data-theme="forest"]{
+            --bg-from:#0b1d11;--bg-via:#1b4332;--bg-to:#2d6a4f;
+            --card-bg:rgba(255,255,255,0.07);--card-border:rgba(100,255,150,0.2);
+            --text-primary:#d8f3dc;--text-secondary:rgba(216,243,220,0.65);
+            --accent-from:#52b788;--accent-to:#1b4332;
+            --btn-from:#52b788;--btn-to:#2d6a4f;--btn-shadow:rgba(82,183,136,0.45);
+            --stat-bg:rgba(82,183,136,0.07);--stat-border:rgba(82,183,136,0.2);
+            --row-bg:rgba(82,183,136,0.04);--row-border:rgba(82,183,136,0.12);
+            --badge-bg:rgba(82,183,136,0.15);--badge-border:rgba(82,183,136,0.4);
+        }
+
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+        body{
+            font-family:'Outfit',sans-serif;min-height:100vh;
+            background:linear-gradient(135deg,var(--bg-from),var(--bg-via),var(--bg-to));
+            background-size:400% 400%;animation:gradientShift 10s ease infinite;
+            display:flex;align-items:center;justify-content:center;
+            position:relative;overflow-x:hidden;padding:80px 0 40px;
+        }
+        @keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+
+        .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.22;animation:orbFloat 12s ease-in-out infinite;pointer-events:none;}
+        .orb-1{width:350px;height:350px;background:var(--accent-from);top:-80px;left:-80px;}
+        .orb-2{width:280px;height:280px;background:var(--accent-to);bottom:-60px;right:-60px;animation-delay:4s;}
+        @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(18px,-18px) scale(1.07);}}
+
+        /* CONFETTI */
+        .confetti-piece{position:fixed;top:-10px;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;}
+        @keyframes confettiFall{0%{transform:translateY(0) rotateZ(0deg);opacity:1;}100%{transform:translateY(110vh) rotateZ(720deg);opacity:0;}}
+
+        /* THEME BAR */
+        .theme-bar{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:100;background:rgba(0,0,0,.3);backdrop-filter:blur(12px);padding:8px 12px;border-radius:50px;border:1px solid rgba(255,255,255,.1);}
+        .theme-label{color:rgba(255,255,255,.5);font-size:11px;font-weight:500;display:flex;align-items:center;margin-right:4px;}
+        .theme-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2);transition:transform .25s,border-color .25s,box-shadow .25s;}
+        .theme-dot:hover{transform:scale(1.2);}
+        .theme-dot.active{border-color:#fff;box-shadow:0 0 10px rgba(255,255,255,.6);transform:scale(1.25);}
+        .theme-dot[data-t="cosmic"]{background:linear-gradient(135deg,#a855f7,#6366f1);}
+        .theme-dot[data-t="ocean"] {background:linear-gradient(135deg,#00e5ff,#0288d1);}
+        .theme-dot[data-t="sunset"]{background:linear-gradient(135deg,#ff9800,#f44336);}
+        .theme-dot[data-t="forest"]{background:linear-gradient(135deg,#52b788,#1b4332);}
+
+        /* CARD */
+        .wrapper{position:relative;z-index:10;width:100%;max-width:500px;padding:16px;}
+        .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;padding:44px 40px 40px;box-shadow:var(--card-shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);animation:cardIn .7s cubic-bezier(.34,1.56,.64,1) both;}
+        @keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+        /* HEADER */
+        .header{text-align:center;margin-bottom:30px;}
+        .trophy{font-size:54px;margin-bottom:12px;display:block;animation:trophyBounce 1s cubic-bezier(.34,1.56,.64,1) .3s both;}
+        @keyframes trophyBounce{from{opacity:0;transform:scale(0) rotate(-15deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+        .card h1{font-size:1.75rem;font-weight:800;color:var(--text-primary);letter-spacing:-.5px;}
+        .subtitle{margin-top:6px;font-size:.88rem;color:var(--text-secondary);}
+        .grade-badge{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 18px;border-radius:50px;font-size:13px;font-weight:700;letter-spacing:.5px;transition:background .3s;}
+
+        /* CGPA HERO */
+        .cgpa-hero{
+            text-align:center;margin:24px 0;
+            background:var(--stat-bg);border:1px solid var(--stat-border);
+            border-radius:20px;padding:28px 20px;
+            animation:statIn .5s cubic-bezier(.34,1.56,.64,1) .2s both;
+        }
+        @keyframes statIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        .cgpa-label{font-size:.75rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;}
+        .cgpa-value{
+            font-size:3.8rem;font-weight:800;line-height:1;
+            background:linear-gradient(135deg,var(--accent-from),var(--accent-to));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        }
+        .cgpa-scale{font-size:.82rem;color:var(--text-secondary);margin-top:6px;}
+
+        /* PROGRESS BAR */
+        .progress-wrap{margin:20px 0;}
+        .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+        .progress-label{font-size:.78rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;}
+        .progress-pct{font-size:.82rem;font-weight:700;color:var(--text-primary);}
+        .progress-track{height:10px;background:var(--stat-bg);border:1px solid var(--stat-border);border-radius:50px;overflow:hidden;}
+        .progress-fill{height:100%;border-radius:50px;width:0%;background:linear-gradient(90deg,var(--accent-from),var(--accent-to));transition:width 1.2s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px var(--btn-shadow);}
+
+        /* SEM BREAKDOWN */
+        .breakdown-title{
+            display:flex;align-items:center;gap:8px;
+            font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+            color:var(--text-secondary);margin:22px 0 10px;
+        }
+        .breakdown-title::after{content:'';flex:1;height:1px;background:var(--card-border);}
+
+        .sem-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+        .sem-row{
+            display:flex;align-items:center;justify-content:space-between;
+            background:var(--row-bg);border:1px solid var(--row-border);
+            border-radius:12px;padding:10px 16px;
+            animation:rowIn .4s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        @keyframes rowIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+        .sem-name{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--text-primary);}
+        .sem-emoji{font-size:16px;}
+        .sem-gpa{
+            font-size:.9rem;font-weight:700;
+            background:linear-gradient(135deg,var(--accent-from),var(--accent-to));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        }
+        .sem-bar-wrap{flex:1;margin:0 12px;height:5px;background:var(--row-border);border-radius:50px;overflow:hidden;}
+        .sem-bar{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--accent-from),var(--accent-to));transition:width 1s ease;}
+
+        /* DIVIDER */
+        .divider{height:1px;background:linear-gradient(90deg,transparent,var(--card-border),transparent);margin:0 0 22px;}
+
+        /* BUTTONS */
+        .btn-group{display:flex;gap:12px;}
+        .btn{flex:1;padding:14px;border-radius:14px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:transform .2s,box-shadow .2s;border:none;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;}
+        .btn:hover{transform:translateY(-2px);}
+        .btn:active{transform:translateY(0);}
+        .btn-primary{background:linear-gradient(135deg,var(--btn-from),var(--btn-to));color:#fff;box-shadow:0 6px 25px var(--btn-shadow);}
+        .btn-primary:hover{box-shadow:0 10px 35px var(--btn-shadow);}
+        .btn-secondary{background:var(--stat-bg);color:var(--text-primary);border:1px solid var(--stat-border);}
+        .btn-secondary:hover{background:rgba(255,255,255,.12);}
+
+        .card-footer{text-align:center;margin-top:20px;font-size:.78rem;color:var(--text-secondary);}
+
+        @media(max-width:500px){
+            .card{padding:32px 22px;}
+            .btn-group{flex-direction:column;}
+            .theme-bar{top:12px;right:12px;}
+            .cgpa-value{font-size:3rem;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="theme-bar" role="toolbar" aria-label="Theme switcher">
+        <span class="theme-label">🎨</span>
+        <div class="theme-dot active" data-t="cosmic"  title="Cosmic Purple" tabindex="0" role="button"></div>
+        <div class="theme-dot"        data-t="ocean"   title="Ocean Blue"    tabindex="0" role="button"></div>
+        <div class="theme-dot"        data-t="sunset"  title="Sunset Glow"   tabindex="0" role="button"></div>
+        <div class="theme-dot"        data-t="forest"  title="Forest Green"  tabindex="0" role="button"></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="card">
+
+            <div class="header">
+                <span class="trophy" id="trophyEmoji">🏆</span>
+                <h1>Your CGPA Result</h1>
+                <p class="subtitle">Based on {{ num_sems }} semester{{ 's' if num_sems > 1 else '' }}</p>
+                <div class="grade-badge" id="gradeBadge">— Grade</div>
+            </div>
+
+            <!-- CGPA Hero -->
+            <div class="cgpa-hero">
+                <div class="cgpa-label">Cumulative GPA</div>
+                <div class="cgpa-value" id="cgpaDisplay">{{ cgpa }}</div>
+                <div class="cgpa-scale">out of 10.0</div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-wrap">
+                <div class="progress-header">
+                    <span class="progress-label">Overall Performance</span>
+                    <span class="progress-pct" id="pctText">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- Semester Breakdown -->
+            <div class="breakdown-title">Semester Breakdown</div>
+            <div class="sem-list" id="semList">
+                {% set sem_icons = ['🌱','🌿','📘','📗','📙','📕','🎯','🏁'] %}
+                {% for gpa in sem_gpas %}
+                <div class="sem-row" style="animation-delay: {{ loop.index0 * 0.07 }}s">
+                    <div class="sem-name">
+                        <span class="sem-emoji">{{ sem_icons[loop.index0] }}</span>
+                        Sem {{ loop.index }}
+                    </div>
+                    <div class="sem-bar-wrap">
+                        <div class="sem-bar" data-width="{{ (gpa / 10 * 100) | round | int }}"></div>
+                    </div>
+                    <div class="sem-gpa">{{ gpa }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="btn-group">
+                <a href="/" class="btn btn-primary">
+                    <span>🔄</span> Calculate Again
+                </a>
+                <button class="btn btn-secondary" id="shareBtn" onclick="shareResult()">
+                    <span>📤</span> Share
+                </button>
+            </div>
+
+            <p class="card-footer">Keep aiming higher — you've got this! 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA =====
+        const cgpa     = {{ cgpa }};
+        const numSems  = {{ num_sems }};
+        const semGpas  = {{ sem_gpas | tojson }};
+        const pct      = Math.round((cgpa / 10) * 100);
+
+        // ===== THEME =====
+        const html = document.documentElement;
+        const dots = document.querySelectorAll('.theme-dot');
+        function setTheme(t) {
+            t === 'cosmic' ? html.removeAttribute('data-theme') : html.setAttribute('data-theme', t);
+            dots.forEach(d => d.classList.toggle('active', d.dataset.t === t));
+            localStorage.setItem('cgpa-theme', t);
+        }
+        const saved = localStorage.getItem('cgpa-theme') || 'cosmic';
+        setTheme(saved);
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => setTheme(dot.dataset.t));
+            dot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') setTheme(dot.dataset.t); });
+        });
+
+        // ===== GRADE =====
+        const badge  = document.getElementById('gradeBadge');
+        const trophy = document.getElementById('trophyEmoji');
+        let gradeText, gradeEmoji, badgeBg, badgeColor;
+
+        if      (cgpa >= 9.0) { gradeText = 'O — Outstanding';   gradeEmoji = '🏆'; badgeBg = 'rgba(34,197,94,0.2)';   badgeColor = '#22c55e'; }
+        else if (cgpa >= 8.0) { gradeText = 'A+ — Excellent';    gradeEmoji = '🥇'; badgeBg = 'rgba(74,222,128,0.15)'; badgeColor = '#4ade80'; }
+        else if (cgpa >= 7.0) { gradeText = 'A — Very Good';     gradeEmoji = '🌟'; badgeBg = 'rgba(132,204,22,0.2)';  badgeColor = '#84cc16'; }
+        else if (cgpa >= 6.0) { gradeText = 'B+ — Good';         gradeEmoji = '🥈'; badgeBg = 'rgba(250,204,21,0.2)';  badgeColor = '#facc15'; }
+        else if (cgpa >= 5.0) { gradeText = 'B — Average';       gradeEmoji = '🥉'; badgeBg = 'rgba(251,146,60,0.2)';  badgeColor = '#fb923c'; }
+        else                  { gradeText = 'Below Average';      gradeEmoji = '📚'; badgeBg = 'rgba(248,113,113,0.2)'; badgeColor = '#f87171'; }
+
+        badge.textContent       = gradeEmoji + ' ' + gradeText;
+        badge.style.background  = badgeBg;
+        badge.style.color       = badgeColor;
+        badge.style.border      = `1px solid ${badgeColor}40`;
+        trophy.textContent      = gradeEmoji;
+
+        // ===== PROGRESS ANIMATION =====
+        const fill    = document.getElementById('progressFill');
+        const pctText = document.getElementById('pctText');
+        let current = 0;
+        function animatePct() {
+            if (current <= pct) {
+                pctText.textContent = current + '%';
+                current++;
+                setTimeout(animatePct, 14);
+            }
+        }
+        setTimeout(() => { fill.style.width = pct + '%'; animatePct(); }, 400);
+
+        // ===== SEM BAR ANIMATION =====
+        setTimeout(() => {
+            document.querySelectorAll('.sem-bar').forEach(bar => {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        }, 600);
+
+        // ===== CONFETTI =====
+        if (cgpa >= 6.0) {
+            const colors = ['#a855f7','#6366f1','#22c55e','#facc15','#f87171','#00e5ff','#ff9800'];
+            for (let i = 0; i < 55; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti-piece';
+                const size = 6 + Math.random() * 8;
+                c.style.cssText = `
+                    left:${Math.random()*100}vw;
+                    background:${colors[Math.floor(Math.random()*colors.length)]};
+                    width:${size}px;height:${size}px;
+                    border-radius:${Math.random()>.5?'50%':'2px'};
+                    animation-duration:${2+Math.random()*3}s;
+                    animation-delay:${Math.random()*1.5}s;
+                `;
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 5000);
+            }
+        }
+
+        // ===== SHARE =====
+        function shareResult() {
+            const lines = semGpas.map((g, i) => `  Sem ${i+1}: ${g}`).join('\n');
+            const text = `🎓 My CGPA Result\nCGPA: ${cgpa}/10 — ${gradeText}\nSemesters: ${numSems}\n${lines}\n\nCalculated using CGPA Calculator`;
+            if (navigator.share) {
+                navigator.share({ title: 'My CGPA', text });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.getElementById('shareBtn');
+                    btn.innerHTML = '<span>✅</span> Copied!';
+                    setTimeout(() => btn.innerHTML = '<span>📤</span> Share', 2000);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
