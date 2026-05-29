@@ -18,7 +18,7 @@
 
 # 🌐 Live Project URL
 
-👉 [http://cgpa-calculator-env.eba-mkrp46vf.ap-south-1.elasticbeanstalk.com](http://cgpa-calculator-env.eba-mkrp46vf.ap-south-1.elasticbeanstalk.com)
+👉 [http://cgpa-calculator-env.eba-mkrp46vf.ap-south-1.elasticbeanstalk.com](http://cgpa-calculator-env.eba-mkrp46vf.ap-south-1.elasticbeanstalk.com/)
 
 ---
 
