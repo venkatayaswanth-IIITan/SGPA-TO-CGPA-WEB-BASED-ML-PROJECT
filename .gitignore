@@ -3,3 +3,22 @@
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Model binary — regenerate locally with: python train_model.py
+model.pkl
+
+# Plot output from training
+model_evaluation.png
+
+# Local dev logs
+*.log

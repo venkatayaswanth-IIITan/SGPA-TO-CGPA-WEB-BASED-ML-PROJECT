@@ -188,6 +188,9 @@
                 <span class="trophy" id="trophyEmoji">🏆</span>
                 <h1>Your CGPA Result</h1>
                 <p class="subtitle">Based on {{ num_sems }} semester{{ 's' if num_sems > 1 else '' }}</p>
+                {% if method == 'ml' %}
+                <div style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;letter-spacing:.5px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;">&#129302; ML Predicted</div>
+                {% endif %}
                 <div class="grade-badge" id="gradeBadge">— Grade</div>
             </div>
 
@@ -325,9 +328,10 @@
         // ===== SHARE =====
         function shareResult() {
             const lines = semGpas.map((g, i) => `  Sem ${i+1}: ${g}`).join('\n');
-            const text = `🎓 My CGPA Result\nCGPA: ${cgpa}/10 — ${gradeText}\nSemesters: ${numSems}\n${lines}\n\nCalculated using CGPA Calculator`;
+            const url   = 'http://cgpa-calculator-env.eba-mkrp46vf.ap-south-1.elasticbeanstalk.com';
+            const text = `🎓 My CGPA Result\nCGPA: ${cgpa}/10 — ${gradeText}\nSemesters: ${numSems}\n${lines}\n\nTry it yourself: ${url}`;
             if (navigator.share) {
-                navigator.share({ title: 'My CGPA', text });
+                navigator.share({ title: 'My CGPA', text, url });
             } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
                     const btn = document.getElementById('shareBtn');

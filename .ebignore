@@ -30,5 +30,9 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Old app.py (EB uses application.py)
-# Keep both for safety — EB will use application.py
+# Training script & outputs — not needed on the server
+train_model.py
+model_evaluation.png
+
+# NOTE: model.pkl and Student_Performance1.csv are intentionally
+# NOT ignored — they must be included in the EB deployment bundle.
